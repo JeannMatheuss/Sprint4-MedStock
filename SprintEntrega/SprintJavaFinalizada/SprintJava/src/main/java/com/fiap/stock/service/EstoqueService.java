@@ -17,7 +17,7 @@ public class EstoqueService {
     private final UsuarioDAO usuarioDAO;
 
     public EstoqueService(Connection conn) {
-        this.materialDAO = new MaterialDAOImpl(conn);
+        this.materialDAO = new MaterialDAOImpl();
         this.movimentacaoDAO = new MovimentacaoDAO(conn);
         this.usuarioDAO = new UsuarioDAO(conn);
     }

@@ -1,28 +1,20 @@
-// DTO para movimentação
 package com.fiap.stock.dto;
-
 
 import javax.validation.constraints.*;
 
-
-public class MovimentacaoCreateDTO {
+public class MovimentacaoDTO {
     @NotNull
     private Long materialId;
-
 
     @NotNull
     private Integer usuarioId;
 
-
     @NotBlank
-    @Pattern(regexp = "ENTRADA|SAIDA")
+    @Pattern(regexp = "ENTRADA|SAIDA", flags = Pattern.Flag.CASE_INSENSITIVE)
     private String tipo;
 
-
-    @NotNull
-    @Positive
+    @NotNull @Positive
     private Integer quantidade;
-
 
     // getters/setters
     public Long getMaterialId() { return materialId; }

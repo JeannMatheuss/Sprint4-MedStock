@@ -1,6 +1,7 @@
 package com.fiap.stock.dao;
 
 import com.fiap.stock.model.Material;
+import com.fiap.stock.util.ConnectionFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,20 +10,17 @@ import java.util.Optional;
 
 public class MaterialDAOImpl implements MaterialDAO {
 
-    private final Connection conn;
-
-    public MaterialDAOImpl(Connection conn) {
-        this.conn = conn;
-    }
+    public MaterialDAOImpl() { }
 
     @Override
     public Material save(Material material) throws Exception {
         String sql = "INSERT INTO MATERIAL (NOME, QUANTIDADE, UNIDADE, PONTO_REPOSICAO) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(sql, new String[]{"ID"})) {
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, material.getNome());
-            stmt.setDouble(2, material.getQuantidade());       // <- número
+            stmt.setDouble(2, material.getQuantidade() != null ? material.getQuantidade() : 0.0);
             stmt.setString(3, material.getUnidade());
-            stmt.setDouble(4, material.getPontoReposicao());   // <- número
+            stmt.setDouble(4, material.getPontoReposicao() != null ? material.getPontoReposicao() : 0.0);
             stmt.executeUpdate();
 
             try (ResultSet rs = stmt.getGeneratedKeys()) {
@@ -37,7 +35,8 @@ public class MaterialDAOImpl implements MaterialDAO {
     @Override
     public Optional<Material> findById(Long id) throws Exception {
         String sql = "SELECT * FROM MATERIAL WHERE ID = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -59,7 +58,8 @@ public class MaterialDAOImpl implements MaterialDAO {
     public List<Material> findAll() throws Exception {
         List<Material> list = new ArrayList<>();
         String sql = "SELECT * FROM MATERIAL ORDER BY ID";
-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -79,11 +79,12 @@ public class MaterialDAOImpl implements MaterialDAO {
     @Override
     public void update(Material material) throws Exception {
         String sql = "UPDATE MATERIAL SET NOME = ?, QUANTIDADE = ?, UNIDADE = ?, PONTO_REPOSICAO = ? WHERE ID = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, material.getNome());
-            stmt.setDouble(2, material.getQuantidade());
+            stmt.setDouble(2, material.getQuantidade() != null ? material.getQuantidade() : 0.0);
             stmt.setString(3, material.getUnidade());
-            stmt.setDouble(4, material.getPontoReposicao());
+            stmt.setDouble(4, material.getPontoReposicao() != null ? material.getPontoReposicao() : 0.0);
             stmt.setLong(5, material.getId());
             stmt.executeUpdate();
         }
@@ -92,7 +93,8 @@ public class MaterialDAOImpl implements MaterialDAO {
     @Override
     public void delete(Long id) throws Exception {
         String sql = "DELETE FROM MATERIAL WHERE ID = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, id);
             stmt.executeUpdate();
         }

@@ -5,8 +5,6 @@ import com.fiap.stock.dao.MaterialDAOImpl;
 import com.fiap.stock.dao.MovimentacaoDAO;
 import com.fiap.stock.dao.UsuarioDAO;
 import com.fiap.stock.model.Material;
-import com.fiap.stock.model.Movimentacao;
-import com.fiap.stock.model.Usuario;
 import com.fiap.stock.util.ConnectionFactory;
 import com.fiap.stock.exception.ResourceNotFoundException;
 
@@ -25,7 +23,7 @@ public class MaterialServiceRest {
 
     public List<Material> listarTodos() throws Exception {
         try (Connection conn = ConnectionFactory.getConnection()) {
-            MaterialDAOImpl dao = new MaterialDAOImpl(conn);
+            MaterialDAOImpl dao = new MaterialDAOImpl();
             return dao.findAll();
         }
     }
@@ -35,7 +33,7 @@ public class MaterialServiceRest {
         if (nome == null || nome.trim().isEmpty()) throw new IllegalArgumentException("Nome é obrigatório");
         if (qtd == null || qtd < 0) throw new IllegalArgumentException("Quantidade inválida");
         try (Connection conn = ConnectionFactory.getConnection()) {
-            MaterialDAOImpl dao = new MaterialDAOImpl(conn);
+            MaterialDAOImpl dao = new MaterialDAOImpl();
             Material m = new Material(nome, qtd, unidade, ponto);
             return dao.save(m);
         }
@@ -44,7 +42,7 @@ public class MaterialServiceRest {
 
     public Material buscarPorId(Long id) throws Exception {
         try (Connection conn = ConnectionFactory.getConnection()) {
-            MaterialDAOImpl dao = new MaterialDAOImpl(conn);
+            MaterialDAOImpl dao = new MaterialDAOImpl();
             return dao.findById(id).orElseThrow(() -> new ResourceNotFoundException("Material não encontrado"));
         }
     }
@@ -52,7 +50,7 @@ public class MaterialServiceRest {
 
     public void deletar(Long id) throws Exception {
         try (Connection conn = ConnectionFactory.getConnection()) {
-            MaterialDAOImpl dao = new MaterialDAOImpl(conn);
+            MaterialDAOImpl dao = new MaterialDAOImpl();
             dao.delete(id);
         }
     }
@@ -60,7 +58,7 @@ public class MaterialServiceRest {
 
     public void atualizar(Material material) throws Exception {
         try (Connection conn = ConnectionFactory.getConnection()) {
-            MaterialDAOImpl dao = new MaterialDAOImpl(conn);
+            MaterialDAOImpl dao = new MaterialDAOImpl();
             dao.update(material);
         }
     }
@@ -69,7 +67,9 @@ public class MaterialServiceRest {
     @Transactional
     public void movimentar(Long materialId, Integer usuarioId, String tipo, Integer quantidade) throws Exception {
         try (Connection conn = ConnectionFactory.getConnection()) {
-            MaterialDAOImpl materialDAO = new MaterialDAOImpl(conn);
+            MaterialDAOImpl materialDAO = new MaterialDAOImpl();
             MovimentacaoDAO movDAO = new MovimentacaoDAO(conn);
             UsuarioDAO usuarioDAO = new UsuarioDAO(conn);
         }
+    }
+}

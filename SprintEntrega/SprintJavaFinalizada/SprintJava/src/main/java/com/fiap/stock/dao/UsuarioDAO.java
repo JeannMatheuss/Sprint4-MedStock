@@ -1,21 +1,19 @@
 package com.fiap.stock.dao;
 
 import com.fiap.stock.model.Usuario;
+import com.fiap.stock.util.ConnectionFactory;
 
 import java.sql.*;
 
 public class UsuarioDAO {
 
-    private final Connection conn;
-
-    public UsuarioDAO(Connection conn) {
-        this.conn = conn;
-    }
+    public UsuarioDAO(Connection conn) {}
 
     // Salvar usuário
     public void save(Usuario u) throws SQLException {
         String sql = "INSERT INTO USUARIO(NOME, LOGIN, SENHA, PERFIL) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, u.getNome());
             ps.setString(2, u.getLogin());
             ps.setString(3, u.getSenha());
@@ -33,7 +31,8 @@ public class UsuarioDAO {
     // Buscar por login e senha (autenticação)
     public Usuario findByLoginSenha(String login, String senha) {
         String sql = "SELECT * FROM USUARIO WHERE LOGIN = ? AND SENHA = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, login);
             ps.setString(2, senha);
             try (ResultSet rs = ps.executeQuery()) {
@@ -50,8 +49,26 @@ public class UsuarioDAO {
     // Buscar por login (verificação duplicidade)
     public Usuario findByLogin(String login) {
         String sql = "SELECT * FROM USUARIO WHERE LOGIN = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, login);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapUsuario(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Novo: buscar por ID
+    public Usuario findById(Integer id) {
+        String sql = "SELECT * FROM USUARIO WHERE ID = ?";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return mapUsuario(rs);

@@ -2,8 +2,7 @@ package com.fiap.stock.controller;
 
 import com.fiap.stock.model.Material;
 import com.fiap.stock.model.Usuario;
-import com.fiap.stock.service.EstoqueService;
-
+import com.fiap.stock.service.EstoqueService; // sua service antiga (se for manter)
 import java.util.List;
 
 public class EstoqueController {
@@ -35,15 +34,14 @@ public class EstoqueController {
         }
     }
 
-    // usado no MainFrame
+    // usado no MainFrame - CORRIGIDO: retorna o material criado
     public Material adicionarMaterial(String nome, double qtd, String unidade, double ponto) {
         try {
-            service.criarMaterial(nome, qtd, unidade, ponto);
+            return service.criarMaterial(nome, qtd, unidade, ponto);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Erro ao criar material: " + e.getMessage(), e);
         }
-        return null;
     }
 
     // usado no MainFrame

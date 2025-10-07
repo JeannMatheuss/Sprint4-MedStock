@@ -1,29 +1,21 @@
 package com.fiap.stock.dto;
 
-
 import javax.validation.constraints.*;
-
 
 public class MaterialCreateDTO {
     @NotBlank
     private String nome;
 
-
-    @NotNull
-    @PositiveOrZero
+    @NotNull @PositiveOrZero
     private Double quantidade;
-
 
     @NotBlank
     private String unidade;
 
-
-    @NotNull
-    @PositiveOrZero
+    @NotNull @PositiveOrZero
     private Double pontoReposicao;
 
-
-    // getters e setters
+    // getters/setters
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     public Double getQuantidade() { return quantidade; }
