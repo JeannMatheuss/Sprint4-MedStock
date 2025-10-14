@@ -6,8 +6,6 @@ public class Usuario {
     private Long id;
     private String nome;
     private String login;
-
-    @JsonIgnore
     private String senha;
 
     public Usuario() {}
