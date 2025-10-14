@@ -2,66 +2,24 @@ package com.fiap.stock.dao;
 
 import com.fiap.stock.model.Material;
 import com.fiap.stock.util.ConnectionFactory;
+import com.fiap.stock.exception.ResourceNotFoundException;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class MaterialDAOImpl implements MaterialDAO {
+@Repository
+public class MaterialDAOImpl {
 
-    public MaterialDAOImpl() { }
-
-    @Override
-    public Material save(Material material) throws Exception {
-        String sql = "INSERT INTO MATERIAL (NOME, QUANTIDADE, UNIDADE, PONTO_REPOSICAO) VALUES (?, ?, ?, ?)";
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, material.getNome());
-            stmt.setDouble(2, material.getQuantidade() != null ? material.getQuantidade() : 0.0);
-            stmt.setString(3, material.getUnidade());
-            stmt.setDouble(4, material.getPontoReposicao() != null ? material.getPontoReposicao() : 0.0);
-            stmt.executeUpdate();
-
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    material.setId(rs.getLong(1));
-                }
-            }
-        }
-        return material;
-    }
-
-    @Override
-    public Optional<Material> findById(Long id) throws Exception {
-        String sql = "SELECT * FROM MATERIAL WHERE ID = ?";
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    Material m = new Material(
-                            rs.getLong("ID"),
-                            rs.getString("NOME"),
-                            rs.getDouble("QUANTIDADE"),
-                            rs.getString("UNIDADE"),
-                            rs.getDouble("PONTO_REPOSICAO")
-                    );
-                    return Optional.of(m);
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public List<Material> findAll() throws Exception {
+    public List<Material> findAll() throws SQLException {
         List<Material> list = new ArrayList<>();
-        String sql = "SELECT * FROM MATERIAL ORDER BY ID";
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        String sql = "SELECT ID, NOME, QUANTIDADE, UNIDADE, PONTO_REPOSICAO FROM MATERIAL";
 
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Material m = new Material(
                         rs.getLong("ID"),
@@ -76,27 +34,62 @@ public class MaterialDAOImpl implements MaterialDAO {
         return list;
     }
 
-    @Override
-    public void update(Material material) throws Exception {
-        String sql = "UPDATE MATERIAL SET NOME = ?, QUANTIDADE = ?, UNIDADE = ?, PONTO_REPOSICAO = ? WHERE ID = ?";
+    public Material save(Material m) throws SQLException {
+        String sql = "INSERT INTO MATERIAL(NOME, QUANTIDADE, UNIDADE, PONTO_REPOSICAO) VALUES(?,?,?,?)";
         try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, material.getNome());
-            stmt.setDouble(2, material.getQuantidade() != null ? material.getQuantidade() : 0.0);
-            stmt.setString(3, material.getUnidade());
-            stmt.setDouble(4, material.getPontoReposicao() != null ? material.getPontoReposicao() : 0.0);
-            stmt.setLong(5, material.getId());
-            stmt.executeUpdate();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, m.getNome());
+            ps.setDouble(2, m.getQuantidade());
+            ps.setString(3, m.getUnidade());
+            ps.setDouble(4, m.getPontoReposicao());
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) m.setId(rs.getLong(1));
+            }
+        }
+        return m;
+    }
+
+    public Optional<Material> findById(Long id) throws SQLException {
+        String sql = "SELECT ID, NOME, QUANTIDADE, UNIDADE, PONTO_REPOSICAO FROM MATERIAL WHERE ID=?";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(new Material(
+                            rs.getLong("ID"),
+                            rs.getString("NOME"),
+                            rs.getDouble("QUANTIDADE"),
+                            rs.getString("UNIDADE"),
+                            rs.getDouble("PONTO_REPOSICAO")
+                    ));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    public void update(Material m) throws SQLException {
+        String sql = "UPDATE MATERIAL SET NOME=?, QUANTIDADE=?, UNIDADE=?, PONTO_REPOSICAO=? WHERE ID=?";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, m.getNome());
+            ps.setDouble(2, m.getQuantidade());
+            ps.setString(3, m.getUnidade());
+            ps.setDouble(4, m.getPontoReposicao());
+            ps.setLong(5, m.getId());
+            ps.executeUpdate();
         }
     }
 
-    @Override
-    public void delete(Long id) throws Exception {
-        String sql = "DELETE FROM MATERIAL WHERE ID = ?";
+    public void delete(Long id) throws SQLException {
+        String sql = "DELETE FROM MATERIAL WHERE ID=?";
         try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, id);
-            stmt.executeUpdate();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            ps.executeUpdate();
         }
     }
 }

@@ -4,89 +4,27 @@ import com.fiap.stock.model.Usuario;
 import com.fiap.stock.util.ConnectionFactory;
 
 import java.sql.*;
+import java.util.Optional;
 
 public class UsuarioDAO {
 
-    public UsuarioDAO(Connection conn) {}
-
-    // Salvar usuário
-    public void save(Usuario u) throws SQLException {
-        String sql = "INSERT INTO USUARIO(NOME, LOGIN, SENHA, PERFIL) VALUES (?, ?, ?, ?)";
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, u.getNome());
-            ps.setString(2, u.getLogin());
-            ps.setString(3, u.getSenha());
-            ps.setString(4, u.getPerfil());
-            ps.executeUpdate();
-
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    u.setId(rs.getInt(1));
-                }
-            }
-        }
-    }
-
-    // Buscar por login e senha (autenticação)
-    public Usuario findByLoginSenha(String login, String senha) {
-        String sql = "SELECT * FROM USUARIO WHERE LOGIN = ? AND SENHA = ?";
+    public Optional<Usuario> findByLoginSenha(String login, String senha) throws SQLException {
+        String sql = "SELECT ID, NOME, LOGIN, SENHA FROM USUARIO WHERE LOGIN=? AND SENHA=?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, login);
             ps.setString(2, senha);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return mapUsuario(rs);
+                    return Optional.of(new Usuario(
+                            rs.getLong("ID"),
+                            rs.getString("NOME"),
+                            rs.getString("LOGIN"),
+                            rs.getString("SENHA")
+                    ));
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-        return null;
-    }
-
-    // Buscar por login (verificação duplicidade)
-    public Usuario findByLogin(String login) {
-        String sql = "SELECT * FROM USUARIO WHERE LOGIN = ?";
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, login);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapUsuario(rs);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    // Novo: buscar por ID
-    public Usuario findById(Integer id) {
-        String sql = "SELECT * FROM USUARIO WHERE ID = ?";
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapUsuario(rs);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private Usuario mapUsuario(ResultSet rs) throws SQLException {
-        Usuario u = new Usuario();
-        u.setId(rs.getInt("ID"));
-        u.setNome(rs.getString("NOME"));
-        u.setLogin(rs.getString("LOGIN"));
-        u.setSenha(rs.getString("SENHA"));
-        u.setPerfil(rs.getString("PERFIL"));
-        return u;
+        return Optional.empty();
     }
 }

@@ -1,9 +1,7 @@
 package com.fiap.stock.test;
 
-import com.fiap.stock.controller.EstoqueController;
 import com.fiap.stock.model.Material;
 import com.fiap.stock.model.Usuario;
-import com.fiap.stock.service.EstoqueService;
 import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
@@ -34,7 +32,7 @@ public class EstoqueServiceTest {
         // Inserir usuário para teste
         stmt.execute("INSERT INTO USUARIO(NOME, LOGIN, SENHA, PERFIL) VALUES('Test User','user','123','ADMIN')");
 
-        service = new EstoqueService(conn);
+        service = new EstoqueService();
         controller = new EstoqueController(service);
     }
 

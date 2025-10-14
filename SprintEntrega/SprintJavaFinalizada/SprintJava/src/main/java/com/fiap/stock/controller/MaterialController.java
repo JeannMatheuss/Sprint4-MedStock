@@ -1,19 +1,15 @@
 package com.fiap.stock.controller;
 
-import com.fiap.stock.dto.MaterialCreateDTO;
 import com.fiap.stock.model.Material;
 import com.fiap.stock.service.MaterialService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.net.URI;
+import java.sql.SQLException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/materials")
-@Validated
+@RequestMapping("/api/materiais")
 public class MaterialController {
 
     private final MaterialService service;
@@ -23,31 +19,29 @@ public class MaterialController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Material>> listar() throws Exception {
-        return ResponseEntity.ok(service.listarTodos());
+    public List<Material> listarTodos() throws SQLException {
+        return service.listarTodos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Material> buscar(@PathVariable Long id) throws Exception {
+    public ResponseEntity<Material> buscar(@PathVariable Long id) throws SQLException {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
     @PostMapping
-    public ResponseEntity<Material> criar(@RequestBody @Valid MaterialCreateDTO dto) throws Exception {
-        Material m = new Material(dto.getNome(), dto.getQuantidade(), dto.getUnidade(), dto.getPontoReposicao());
-        Material criado = service.criar(m);
-        return ResponseEntity.created(URI.create("/api/materials/" + criado.getId())).body(criado);
+    public Material criar(@RequestBody Material m) throws SQLException {
+        return service.criar(m);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody @Valid MaterialCreateDTO dto) throws Exception {
-        Material m = new Material(id, dto.getNome(), dto.getQuantidade(), dto.getUnidade(), dto.getPontoReposicao());
+    public Material atualizar(@PathVariable Long id, @RequestBody Material m) throws SQLException {
+        m.setId(id);
         service.atualizar(m);
-        return ResponseEntity.ok().build();
+        return m;
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) throws Exception {
+    public ResponseEntity<Void> deletar(@PathVariable Long id) throws SQLException {
         service.deletar(id);
         return ResponseEntity.noContent().build();
     }

@@ -1,25 +1,29 @@
 package com.fiap.stock.controller;
 
-import com.fiap.stock.dto.MovimentacaoDTO;
-import com.fiap.stock.service.MaterialService;
-import org.springframework.http.ResponseEntity;
+import com.fiap.stock.model.Movimentacao;
+import com.fiap.stock.service.MovimentacaoService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import java.sql.SQLException;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/movimentacoes")
+@RequestMapping("/api/movimentacao")
 public class MovimentacaoController {
 
-    private final MaterialService service;
+    private final MovimentacaoService service;
 
-    public MovimentacaoController(MaterialService service) {
+    public MovimentacaoController(MovimentacaoService service) {
         this.service = service;
     }
 
+    @GetMapping
+    public List<Movimentacao> listar() throws SQLException {
+        return service.listar();
+    }
+
     @PostMapping
-    public ResponseEntity<Void> movimentar(@RequestBody @Valid MovimentacaoDTO dto) throws Exception {
-        service.movimentar(dto.getMaterialId(), dto.getUsuarioId(), dto.getTipo(), dto.getQuantidade());
-        return ResponseEntity.ok().build();
+    public void registrar(@RequestBody Movimentacao mov) throws SQLException {
+        service.registrarMovimentacao(mov);
     }
 }

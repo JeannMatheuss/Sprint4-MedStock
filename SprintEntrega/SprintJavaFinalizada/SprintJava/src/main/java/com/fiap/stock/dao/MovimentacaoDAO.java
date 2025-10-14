@@ -1,41 +1,46 @@
 package com.fiap.stock.dao;
 
 import com.fiap.stock.model.Movimentacao;
+import com.fiap.stock.util.ConnectionFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MovimentacaoDAO {
 
-    private final Connection conn;
-
-    // ✅ Mantém o construtor com Connection (usado pelo EstoqueService)
-    public MovimentacaoDAO(Connection conn) {
-        this.conn = conn;
+    public void registrar(Movimentacao mov) throws SQLException {
+        String sql = "INSERT INTO MOVIMENTACAO(ID_MATERIAL, ID_USUARIO, QUANTIDADE, TIPO, DATA_HORA) VALUES(?,?,?,?,?)";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, mov.getIdMaterial());
+            ps.setLong(2, mov.getIdUsuario());
+            ps.setDouble(3, mov.getQuantidade());
+            ps.setString(4, mov.getTipo());
+            ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+            ps.executeUpdate();
+        }
     }
 
-    // Registrar movimentação (entrada/saída) e retornar id gerado
-    public Integer registrarMovimentacao(Movimentacao mov) throws Exception {
-        String sql = "INSERT INTO MOVIMENTACAO (MATERIAL_ID, USUARIO_ID, TIPO, QUANTIDADE, DATA_MOVIMENTACAO) " +
-                "VALUES (?, ?, ?, ?, ?)";
-
-        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setInt(1, mov.getMaterialId());
-            ps.setInt(2, mov.getUsuarioId());
-            ps.setString(3, mov.getTipo());
-            ps.setInt(4, mov.getQuantidade());
-            ps.setTimestamp(5, Timestamp.valueOf(java.time.LocalDateTime.now()));
-            ps.executeUpdate();
-
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
+    public List<Movimentacao> listar() throws SQLException {
+        List<Movimentacao> list = new ArrayList<>();
+        String sql = "SELECT * FROM MOVIMENTACAO ORDER BY DATA_HORA DESC";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Movimentacao m = new Movimentacao(
+                        rs.getLong("ID"),
+                        rs.getLong("ID_MATERIAL"),
+                        rs.getLong("ID_USUARIO"),
+                        rs.getDouble("QUANTIDADE"),
+                        rs.getString("TIPO"),
+                        rs.getTimestamp("DATA_HORA").toLocalDateTime()
+                );
+                list.add(m);
             }
         }
-        return null;
+        return list;
     }
 }

@@ -17,14 +17,7 @@ public class Material {
         this.pontoReposicao = pontoReposicao;
     }
 
-    public Material(String nome, Double quantidade, String unidade, Double pontoReposicao) {
-        this.nome = nome;
-        this.quantidade = quantidade;
-        this.unidade = unidade;
-        this.pontoReposicao = pontoReposicao;
-    }
-
-    // Getters e setters
+    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNome() { return nome; }
