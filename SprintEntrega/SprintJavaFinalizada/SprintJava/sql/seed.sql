@@ -1,10 +1,7 @@
--- 3. Inserir dados iniciais (usuário admin)
+-- Usuário admin
 INSERT INTO USUARIO (NOME, LOGIN, SENHA, PERFIL) VALUES ('Administrador', 'admin', '123', 'ADMIN');
 COMMIT;
 
--- Verificar criação
-SELECT * FROM USUARIO;
-SELECT * FROM MATERIAL;
-
+-- Material inicial
 INSERT INTO MATERIAL (NOME, QUANTIDADE, UNIDADE, PONTO_REPOSICAO) VALUES ('Água', 100.00, 'ml', 20.00);
 COMMIT;
