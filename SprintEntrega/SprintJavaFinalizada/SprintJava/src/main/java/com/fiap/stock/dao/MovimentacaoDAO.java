@@ -2,18 +2,21 @@ package com.fiap.stock.dao;
 
 import com.fiap.stock.model.Movimentacao;
 import com.fiap.stock.util.ConnectionFactory;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class MovimentacaoDAO {
 
     public void registrar(Movimentacao mov) throws SQLException {
-        String sql = "INSERT INTO MOVIMENTACAO(ID_MATERIAL, ID_USUARIO, QUANTIDADE, TIPO, DATA_HORA) VALUES(?,?,?,?,?)";
+        String sql = "INSERT INTO MOVIMENTACAO (MATERIAL_ID, USUARIO_ID, QUANTIDADE, TIPO, DATA_MOVIMENTACAO) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setLong(1, mov.getIdMaterial());
             ps.setLong(2, mov.getIdUsuario());
             ps.setDouble(3, mov.getQuantidade());
@@ -25,20 +28,20 @@ public class MovimentacaoDAO {
 
     public List<Movimentacao> listar() throws SQLException {
         List<Movimentacao> list = new ArrayList<>();
-        String sql = "SELECT * FROM MOVIMENTACAO ORDER BY DATA_HORA DESC";
+        String sql = "SELECT * FROM MOVIMENTACAO ORDER BY DATA_MOVIMENTACAO DESC";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
+
             while (rs.next()) {
-                Movimentacao m = new Movimentacao(
+                list.add(new Movimentacao(
                         rs.getLong("ID"),
-                        rs.getLong("ID_MATERIAL"),
-                        rs.getLong("ID_USUARIO"),
+                        rs.getLong("MATERIAL_ID"),
+                        rs.getLong("USUARIO_ID"),
                         rs.getDouble("QUANTIDADE"),
                         rs.getString("TIPO"),
-                        rs.getTimestamp("DATA_HORA").toLocalDateTime()
-                );
-                list.add(m);
+                        rs.getTimestamp("DATA_MOVIMENTACAO").toLocalDateTime()
+                ));
             }
         }
         return list;

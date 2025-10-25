@@ -2,7 +2,6 @@ package com.fiap.stock.dao;
 
 import com.fiap.stock.model.Material;
 import com.fiap.stock.util.ConnectionFactory;
-import com.fiap.stock.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class MaterialDAOImpl {
+public class MaterialDAO {
 
     public List<Material> findAll() throws SQLException {
         List<Material> list = new ArrayList<>();
@@ -20,41 +19,25 @@ public class MaterialDAOImpl {
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
+
             while (rs.next()) {
-                Material m = new Material(
+                list.add(new Material(
                         rs.getLong("ID"),
                         rs.getString("NOME"),
                         rs.getDouble("QUANTIDADE"),
                         rs.getString("UNIDADE"),
                         rs.getDouble("PONTO_REPOSICAO")
-                );
-                list.add(m);
+                ));
             }
         }
         return list;
     }
 
-    public Material save(Material m) throws SQLException {
-        String sql = "INSERT INTO MATERIAL(NOME, QUANTIDADE, UNIDADE, PONTO_REPOSICAO) VALUES(?,?,?,?)";
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, m.getNome());
-            ps.setDouble(2, m.getQuantidade());
-            ps.setString(3, m.getUnidade());
-            ps.setDouble(4, m.getPontoReposicao());
-            ps.executeUpdate();
-
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) m.setId(rs.getLong(1));
-            }
-        }
-        return m;
-    }
-
     public Optional<Material> findById(Long id) throws SQLException {
-        String sql = "SELECT ID, NOME, QUANTIDADE, UNIDADE, PONTO_REPOSICAO FROM MATERIAL WHERE ID=?";
+        String sql = "SELECT * FROM MATERIAL WHERE ID=?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setLong(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -71,10 +54,29 @@ public class MaterialDAOImpl {
         return Optional.empty();
     }
 
+    public void save(Material m) throws SQLException {
+        String sql = "INSERT INTO MATERIAL (NOME, QUANTIDADE, UNIDADE, PONTO_REPOSICAO) VALUES (?, ?, ?, ?)";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, m.getNome());
+            ps.setObject(2, m.getQuantidade(), Types.NUMERIC);
+            ps.setString(3, m.getUnidade());
+            ps.setObject(4, m.getPontoReposicao(), Types.NUMERIC);
+
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) m.setId(rs.getLong(1));
+            }
+        }
+    }
+
     public void update(Material m) throws SQLException {
         String sql = "UPDATE MATERIAL SET NOME=?, QUANTIDADE=?, UNIDADE=?, PONTO_REPOSICAO=? WHERE ID=?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, m.getNome());
             ps.setDouble(2, m.getQuantidade());
             ps.setString(3, m.getUnidade());
@@ -88,6 +90,7 @@ public class MaterialDAOImpl {
         String sql = "DELETE FROM MATERIAL WHERE ID=?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setLong(1, id);
             ps.executeUpdate();
         }

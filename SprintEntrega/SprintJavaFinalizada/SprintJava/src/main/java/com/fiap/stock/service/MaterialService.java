@@ -1,6 +1,6 @@
 package com.fiap.stock.service;
 
-import com.fiap.stock.dao.MaterialDAOImpl;
+import com.fiap.stock.dao.MaterialDAO;
 import com.fiap.stock.exception.ResourceNotFoundException;
 import com.fiap.stock.model.Material;
 import org.springframework.stereotype.Service;
@@ -11,9 +11,9 @@ import java.util.List;
 @Service
 public class MaterialService {
 
-    private final MaterialDAOImpl dao;
+    private final MaterialDAO dao;
 
-    public MaterialService(MaterialDAOImpl dao) {
+    public MaterialService(MaterialDAO dao) {
         this.dao = dao;
     }
 
@@ -21,23 +21,27 @@ public class MaterialService {
         return dao.findAll();
     }
 
-    public Material criar(Material m) throws SQLException {
-        if (m.getNome() == null || m.getNome().trim().isEmpty()) throw new IllegalArgumentException("Nome obrigatório");
-        if (m.getQuantidade() == null || m.getQuantidade() < 0) throw new IllegalArgumentException("Quantidade inválida");
-        return dao.save(m);
+    public Material buscarPorId(Long id) throws SQLException {
+        return dao.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Material não encontrado"));
     }
 
-    public Material buscarPorId(Long id) throws SQLException {
-        return dao.findById(id).orElseThrow(() -> new ResourceNotFoundException("Material não encontrado"));
+    public Material criar(Material m) throws SQLException {
+        if (m.getNome() == null || m.getNome().trim().isEmpty())
+            throw new IllegalArgumentException("Nome obrigatório");
+        dao.save(m);
+        return m;
+    }
+
+    public Material atualizar(Material m) throws SQLException {
+        if (m.getId() == null) throw new IllegalArgumentException("ID obrigatório");
+        dao.update(m);
+        return m;
     }
 
     public void deletar(Long id) throws SQLException {
-        if (!dao.findById(id).isPresent()) throw new ResourceNotFoundException("Material não encontrado");
+        if (dao.findById(id).isEmpty())
+            throw new ResourceNotFoundException("Material não encontrado");
         dao.delete(id);
-    }
-
-    public void atualizar(Material m) throws SQLException {
-        if (m.getId() == null) throw new IllegalArgumentException("ID obrigatório");
-        dao.update(m);
     }
 }
