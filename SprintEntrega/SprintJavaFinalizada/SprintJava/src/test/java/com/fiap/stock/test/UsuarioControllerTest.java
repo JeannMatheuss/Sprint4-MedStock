@@ -18,15 +18,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UsuarioControllerTest {
 
     @Autowired
-    MockMvc mvc;
+    private MockMvc mvc;
 
     @MockBean
-    UsuarioService service;
+    private UsuarioService service;
 
     @Test
     void login_sucesso() throws Exception {
-        Usuario u = new Usuario(1L,"Admin","admin","123","ADMIN");
-        when(service.autenticar("admin","123")).thenReturn(u);
+        Usuario u = new Usuario(1L, "Admin", "admin", "123", "ADMIN");
+        when(service.autenticar("admin", "123")).thenReturn(u);
+
         mvc.perform(post("/api/usuarios/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"login\":\"admin\",\"senha\":\"123\"}"))
@@ -36,7 +37,7 @@ class UsuarioControllerTest {
 
     @Test
     void login_falha() throws Exception {
-        when(service.autenticar("x","y")).thenThrow(new RuntimeException());
+        when(service.autenticar("x", "y")).thenThrow(new RuntimeException("Erro"));
         mvc.perform(post("/api/usuarios/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"login\":\"x\",\"senha\":\"y\"}"))
