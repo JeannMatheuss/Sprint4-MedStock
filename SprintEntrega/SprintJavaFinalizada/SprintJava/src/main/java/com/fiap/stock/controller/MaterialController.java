@@ -2,6 +2,7 @@ package com.fiap.stock.controller;
 
 import com.fiap.stock.model.Material;
 import com.fiap.stock.service.MaterialService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,9 +30,11 @@ public class MaterialController {
     }
 
     @PostMapping
-    public Material criar(@RequestBody Material m) throws SQLException {
-        return service.criar(m);
+    public ResponseEntity<Material> criar(@RequestBody Material material) throws SQLException {
+        Material novo = service.criar(material);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novo);
     }
+
 
     @PutMapping("/{id}")
     public Material atualizar(@PathVariable Long id, @RequestBody Material m) throws SQLException {

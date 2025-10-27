@@ -4,6 +4,7 @@ import com.fiap.stock.model.Material;
 import com.fiap.stock.util.ConnectionFactory;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,17 +61,17 @@ public class MaterialDAO {
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, m.getNome());
-            ps.setObject(2, m.getQuantidade(), Types.NUMERIC);
+            ps.setDouble(2, m.getQuantidade() != null ? m.getQuantidade() : 0.0);
             ps.setString(3, m.getUnidade());
-            ps.setObject(4, m.getPontoReposicao(), Types.NUMERIC);
+            ps.setDouble(4, m.getPontoReposicao() != null ? m.getPontoReposicao() : 0.0);
 
             ps.executeUpdate();
-
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) m.setId(rs.getLong(1));
             }
         }
     }
+
 
     public void update(Material m) throws SQLException {
         String sql = "UPDATE MATERIAL SET NOME=?, QUANTIDADE=?, UNIDADE=?, PONTO_REPOSICAO=? WHERE ID=?";
