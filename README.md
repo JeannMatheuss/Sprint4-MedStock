@@ -179,8 +179,8 @@ Base URL: `http://localhost:8080/api/`
 ### **Instalação**
 
 ```bash
-git clone https://github.com/JeannMatheuss/medstock.git
-cd medstock
+git clone https://github.com/JeannMatheuss/Sprint4-MedStock.git
+cd Sprint4-MedStock
 ```
 
 ### **Configuração do Banco de Dados**
