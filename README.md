@@ -179,7 +179,7 @@ Base URL: `http://localhost:8080/api/`
 ### **Instalação**
 
 ```bash
-git clone https://github.com/seu-usuario/medstock.git
+git clone https://github.com/JeannMatheuss/medstock.git
 cd medstock
 ```
 
